@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn Cyrillic</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            padding: 10px;
+            position: relative;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        #home-button {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .score-container {
+            position: absolute;
+            top: 60px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10px;
+            gap: 10px;
+            font-size: 1.2rem;
+        }
+
+        .score {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .quiz-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .word {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .options {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: nowrap;
+            margin-top: 20px;
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        .options button {
+            font-size: 1.5rem;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            min-width: 80px;
+            white-space: nowrap;
+            background-color: #ccc; /* Gray color for option buttons */
+            color: white;
+        }
+
+        .correct {
+            background-color: green;
+            color: white;
+        }
+
+        .wrong {
+            background-color: red;
+            color: white;
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 400px) {
+            #home-button {
+                position: static;
+                transform: none;
+                margin-bottom: 10px;
+            }
+
+            .score-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 5px;
+                font-size: 1rem;
+                position: static;
+                margin-bottom: 10px;
+            }
+
+            .options {
+                flex-direction: column;
+                gap: 5px;
+                overflow: visible;
+            }
+
+            .options button {
+                width: 100%;
+            }
+        }
+
+        /* Input box styles */
+        #answer-input {
+            font-size: 1.5rem;
+            padding: 10px;
+            margin-top: 20px;
+            width: 80%;
+            max-width: 300px;
+            transition: background-color 0.5s ease;
+            border-radius: 8px;
+            border: 2px solid #ccc;
+            outline: none;
+            box-sizing: border-box;
+            background-color: #ccc; /* Gray color */
+        }
+
+        #answer-input:focus {
+            border-color: #007BFF;
+        }
+
+        /* Submit button styles */
+        #submit-button {
+            font-size: 1.5rem;
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: #ccc; /* Gray color */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #submit-button:hover {
+            background-color: #999; /* Darker gray for hover effect */
+        }
+
+        /* Button Disabled */
+        #submit-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <button id="home-button" onclick="goHome()">🏠</button>
+
+    <div class="score-container">
+        <div class="score">
+            <span>Session</span>
+            <span style="color: green;">✔ <span id="correct-score-session">0</span></span>
+            <span style="color: red;">❌ <span id="wrong-score-session">0</span></span>
+        </div>
+
+        <div class="score">
+            <span>All-time</span>
+            <span style="color: green;">✔ <span id="correct-score-alltime">0</span></span>
+            <span style="color: red;">❌ <span id="wrong-score-alltime">0</span></span>
+        </div>
+    </div>
+
+    <div class="quiz-container">
+        <div class="word" id="cyrillic-word">?</div>
+        <input type="text" id="answer-input" placeholder="Enter the word in Latinica">
+        <button id="submit-button" onclick="checkAnswer()">Submit</button>
+    </div>
+
+    <script>
+        function goHome() {
+            let currentUrl = window.location.href;
+            let baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf("/") + 1);
+            window.location.href = baseUrl;
+        }
+
+        let sessionCorrect = 0;
+        let sessionWrong = 0;
+        let allTimeCorrect = parseInt(localStorage.getItem("correctScore")) || 0;
+        let allTimeWrong = parseInt(localStorage.getItem("wrongScore")) || 0;
+        let mistakeCounts = JSON.parse(localStorage.getItem("mistakeCounts")) || {};
+
+        const cyrillicToLatinWords = {
+            "Здраво": "Zdravo", 
+            "Добар": "Dobar", 
+            "Тиме": "Time", 
+            "Књига": "Knjiga", 
+            "Жена": "Žena", 
+            "Машина": "Mašina", 
+            "Авион": "Avion", 
+            "Јабука": "Jabuka", 
+            "Љуљашка": "Ljuljaška", 
+            "Река": "Reka", 
+            "Црква": "Crkva", 
+            "Школа": "Škola", 
+            "Човек": "Čovek", 
+            "Сунце": "Sunce", 
+            "Плаво": "Plavo", 
+            "Светло": "Svetlo", 
+            "Лепо": "Lepo", 
+            "Јутро": "Jutro", 
+            "Ноћ": "Noć", 
+            "Млеко": "Mleko", 
+            "Вода": "Voda", 
+            "Смех": "Smeh", 
+            "Песма": "Pesma", 
+            "Трг": "Trg", 
+            "Ресторан": "Restoran", 
+            "Трговина": "Trgovina", 
+            "Кућа": "Kuća", 
+            "Свети": "Sveti", 
+            "Језик": "Jezik", 
+            "Град": "Grad", 
+            "Брдо": "Brdo", 
+            "Земља": "Zemlja", 
+            "Природа": "Priroda", 
+            "Планина": "Planina", 
+            "Лав": "Lav", 
+            "Петао": "Petaо", 
+            "Крава": "Krava", 
+            "Јелен": "Jelen", 
+            "Гуска": "Guska", 
+            "Сова": "Sova", 
+            "Змија": "Zmija", 
+            "Миш": "Miš", 
+            "Јеж": "Jež", 
+            "Риба": "Riba", 
+            "Тигар": "Tigar", 
+            "Шуња": "Šunja", 
+            "Мачка": "Mačka", 
+            "Пас": "Pas", 
+            "Тиква": "Tikva", 
+            "Чај": "Čaj", 
+            "Кава": "Kava", 
+            "Листа": "Lista", 
+            "Тим": "Tim", 
+            "Тиме": "Time", 
+            "Производ": "Proizvod", 
+            "Петар": "Petar", 
+            "Владимир": "Vladimir", 
+            "Шта": "Šta", 
+            "Кад": "Kad", 
+            "Како": "Kako", 
+            "Зашто": "Zašto", 
+            "Где": "Gde", 
+            "Током": "Tokom", 
+            "Испод": "Ispod", 
+            "Изнад": "Iznad", 
+            "Лево": "Levo", 
+            "Десно": "Desno", 
+            "Право": "Pravo", 
+            "Траг": "Trag", 
+            "Има": "Ima", 
+            "Није": "Nije", 
+            "Не": "Ne", 
+            "Јесте": "Jeste", 
+            "Ох": "Oh", 
+            "Један": "Jedan", 
+            "Два": "Dva", 
+            "Три": "Tri", 
+            "Четири": "Četiri", 
+            "Пет": "Pet", 
+            "Шест": "Šest", 
+            "Седам": "Sedam", 
+            "Осам": "Osam", 
+            "Девет": "Devet", 
+            "Десет": "Deset", 
+            "Петнаест": "Petnaest", 
+            "Двадесет": "Dvadest", 
+            "Триста": "Trista", 
+            "Код": "Kod",
+            "Сто": "Sto", 
+            "Хиљада": "Hiljada"
+        };
+
+        function updateScore() {
+            document.getElementById("correct-score-session").textContent = sessionCorrect;
+            document.getElementById("wrong-score-session").textContent = sessionWrong;
+            document.getElementById("correct-score-alltime").textContent = allTimeCorrect;
+            document.getElementById("wrong-score-alltime").textContent = allTimeWrong;
+            localStorage.setItem("correctScore", allTimeCorrect);
+            localStorage.setItem("wrongScore", allTimeWrong);
+            localStorage.setItem("mistakeCounts", JSON.stringify(mistakeCounts));
+        }
+
+        function generateQuestion() {
+            const cyrillicWord = Object.keys(cyrillicToLatinWords)[Math.floor(Math.random() * Object.keys(cyrillicToLatinWords).length)];
+            const correctLatin = cyrillicToLatinWords[cyrillicWord];
+            document.getElementById("cyrillic-word").textContent = cyrillicWord;
+            document.getElementById("answer-input").value = ''; // Clear previous input
+            document.getElementById("answer-input").style.backgroundColor = ''; // Reset background color
+        }
+
+        function checkAnswer() {
+            const userAnswer = document.getElementById("answer-input").value.trim().toLowerCase();
+            const correctLatin = cyrillicToLatinWords[document.getElementById("cyrillic-word").textContent];
+            const inputField = document.getElementById("answer-input");
+
+            if (userAnswer === correctLatin.toLowerCase()) {
+                sessionCorrect++;
+                allTimeCorrect++;
+                inputField.style.backgroundColor = 'green';
+            } else {
+                sessionWrong++;
+                allTimeWrong++;
+                mistakeCounts[document.getElementById("cyrillic-word").textContent] = (mistakeCounts[document.getElementById("cyrillic-word").textContent] || 0) + 1;
+                inputField.style.backgroundColor = 'red';
+            }
+
+            updateScore();
+            setTimeout(generateQuestion, 1000); // Delay for next question
+        }
+
+        updateScore();
+        generateQuestion();
+    </script>
+</body>
+</html>

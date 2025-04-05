@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn Cyrillic</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            padding: 10px;
+            position: relative;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        #home-button {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .score-container {
+            position: absolute;
+            top: 60px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10px;
+            gap: 10px;
+            font-size: 1.2rem;
+        }
+
+        .score {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .quiz-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .letter {
+            font-size: 5rem;
+            margin-bottom: 20px;
+        }
+
+        .options {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: nowrap; /* Prevent wrapping of options */
+            margin-top: 20px;
+            max-width: 100%;
+            overflow: hidden; /* Prevent horizontal scrolling */
+            text-align: center;
+        }
+
+        .options button {
+            font-size: 1.5rem;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            min-width: 80px;
+            white-space: nowrap; /* Prevent text from wrapping within the button */
+        }
+
+        .correct {
+            background-color: green;
+            color: white;
+        }
+
+        .wrong {
+            background-color: red;
+            color: white;
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 400px) {
+            #home-button {
+                position: static;
+                transform: none;
+                margin-bottom: 10px;
+            }
+
+            .score-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 5px;
+                font-size: 1rem;
+                position: static;
+                margin-bottom: 10px;
+            }
+
+            .options {
+                flex-direction: column;
+                gap: 5px; /* Add space between buttons */
+                overflow: visible; /* Ensure buttons are visible on mobile */
+            }
+
+            .options button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button id="home-button" onclick="goHome()">🏠</button>
+
+    <div class="score-container">
+        <div class="score">
+            <span>Session</span>
+            <span style="color: green;">✔ <span id="correct-score-session">0</span></span>
+            <span style="color: red;">❌ <span id="wrong-score-session">0</span></span>
+        </div>
+
+        <div class="score">
+            <span>All-time</span>
+            <span style="color: green;">✔ <span id="correct-score-alltime">0</span></span>
+            <span style="color: red;">❌ <span id="wrong-score-alltime">0</span></span>
+        </div>
+    </div>
+
+    <div class="quiz-container">
+        <div class="letter" id="cyrillic-letter">?</div>
+        <div class="options" id="options"></div>
+    </div>
+
+    <script>
+        function goHome() {
+            let currentUrl = window.location.href;
+            let baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf("/") + 1);
+            window.location.href = baseUrl;
+        }
+
+        let sessionCorrect = 0;
+        let sessionWrong = 0;
+        let allTimeCorrect = parseInt(localStorage.getItem("correctScore")) || 0;
+        let allTimeWrong = parseInt(localStorage.getItem("wrongScore")) || 0;
+        let mistakeCounts = JSON.parse(localStorage.getItem("mistakeCounts")) || {};
+
+        const cyrillicToLatin = {
+            "А": "A", "Б": "B", "В": "V", "Г": "G", "Д": "D", "Ђ": "Đ", "Е": "E", "Ж": "Ž",
+            "З": "Z", "И": "I", "Ј": "J", "К": "K", "Л": "L", "Љ": "Lj", "М": "M", "Н": "N",
+            "Њ": "Nj", "О": "O", "П": "P", "Р": "R", "С": "S", "Т": "T", "Ћ": "Ć", "У": "U",
+            "Ф": "F", "Х": "H", "Ц": "C", "Ч": "Č", "Џ": "Dž", "Ш": "Š"
+        };
+
+        function updateScore() {
+            document.getElementById("correct-score-session").textContent = sessionCorrect;
+            document.getElementById("wrong-score-session").textContent = sessionWrong;
+            document.getElementById("correct-score-alltime").textContent = allTimeCorrect;
+            document.getElementById("wrong-score-alltime").textContent = allTimeWrong;
+            localStorage.setItem("correctScore", allTimeCorrect);
+            localStorage.setItem("wrongScore", allTimeWrong);
+            localStorage.setItem("mistakeCounts", JSON.stringify(mistakeCounts));
+        }
+
+        function weightedRandomChoice() {
+            const letters = Object.keys(cyrillicToLatin);
+            let weightedLetters = [];
+            letters.forEach(letter => {
+                const mistakes = mistakeCounts[letter] || 0;
+                for (let i = 0; i < (mistakes + 1); i++) {
+                    weightedLetters.push(letter);
+                }
+            });
+            return weightedLetters[Math.floor(Math.random() * weightedLetters.length)];
+        }
+
+        function generateQuestion() {
+            const correctCyrillic = weightedRandomChoice();
+            const correctLatin = cyrillicToLatin[correctCyrillic];
+
+            let wrongAnswers = Object.values(cyrillicToLatin).filter(l => l !== correctLatin);
+            wrongAnswers = wrongAnswers.sort(() => 0.5 - Math.random()).slice(0, 3);
+
+            const options = [correctLatin, ...wrongAnswers].sort(() => 0.5 - Math.random());
+
+            document.getElementById("cyrillic-letter").textContent = correctCyrillic;
+            const optionsContainer = document.getElementById("options");
+            optionsContainer.innerHTML = "";
+
+            options.forEach(option => {
+                const button = document.createElement("button");
+                button.textContent = option;
+                button.onclick = () => checkAnswer(option, correctLatin, correctCyrillic);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function checkAnswer(selected, correct, cyrillic) {
+            document.querySelectorAll(".options button").forEach(btn => {
+                if (btn.textContent === correct) btn.classList.add("correct");
+                else if (btn.textContent === selected) btn.classList.add("wrong");
+            });
+
+            if (selected === correct) sessionCorrect++, allTimeCorrect++;
+            else sessionWrong++, allTimeWrong++, mistakeCounts[cyrillic] = (mistakeCounts[cyrillic] || 0) + 1;
+
+            updateScore();
+            setTimeout(generateQuestion, 1000);
+        }
+
+        updateScore();
+        generateQuestion();
+    </script>
+
+    <!-- Ads load in background -->
+    <script>
+        setTimeout(() => {
+            let script = document.createElement("script");
+            script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
+            script.async = true;
+            script.onerror = () => console.error("Ads failed to load");
+            document.body.appendChild(script);
+        }, 1000);
+    </script>
+</body>
+</html>

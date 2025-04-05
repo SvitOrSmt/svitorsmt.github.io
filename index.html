@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyrillic Learning Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            background-color: #fff;
+            color: #000;
+        }
+        .language-bar {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        .language-bar button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            opacity: 0.5;
+        }
+        .language-bar button.active {
+            opacity: 1;
+            font-weight: bold;
+        }
+        h1 {
+            margin: 10px 0;
+        }
+        p#description {
+            margin: 0 0 30px;
+            color: #555;
+        }
+        .options {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .option-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 200px;
+        }
+        .options a {
+            text-decoration: underline;
+            background: #000;
+            color: #fff;
+            padding: 35px 50px;
+            border-radius: 8px;
+            font-size: 28px;
+            transition: background 0.3s, color 0.3s;
+        }
+        .options a:hover {
+            background: #333;
+            color: #fff;
+        }
+        .description {
+            margin-top: 20px;
+            color: #777;
+            font-style: italic;
+        }
+        footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #777;
+        }
+        footer a {
+            text-decoration: underline;
+            color: #000;
+        }
+
+        @media (max-width: 768px) {
+            .options {
+                flex-direction: column;
+                gap: 20px;
+            }
+            .option-container {
+                width: 100%;
+            }
+            .options a {
+                width: 80%;
+                padding: 25px 0;
+                font-size: 22px;
+            }
+        }
+    </style>
+    <script>
+        function setLanguage(lang) {
+            const translations = {
+                en: {
+                    title: "Cyrillic Learning Page",
+                    description: "Learning Cyrillic has never been easier. Start now and progress through the stages effortlessly!",
+                    stage1: "Stage 1",
+                    stage2: "Stage 2",
+                    stage3: "Stage 3",
+                    stage4: "Stage 4",
+                    stage5: "Stage 5",
+                    desc1: "Guess Cyrillic",
+                    desc2: "Guess Latinica",
+                    desc3: "Guess Words Cyrillic",
+                    desc4: "Guess Words Latinica",
+                    desc5: "Type Words in Latinica",
+                    footer: "Made by <a href='#' id='svit'>Svit S.P.</a> | <a href='#' id='coffee'>Buy me a coffee ☕</a>",
+                    bottomDescription: "Guess individual letters, recognize words, and type them correctly to master the Cyrillic script."
+                },
+                sr: {
+                    title: "Stranica za učenje ćirilice",
+                    description: "Učenje ćirilice nikada nije bilo lakše. Počnite sada i napredujte kroz faze bez napora!",
+                    stage1: "Faza 1",
+                    stage2: "Faza 2",
+                    stage3: "Faza 3",
+                    stage4: "Faza 4",
+                    stage5: "Faza 5",
+                    desc1: "Pogodi ćirilicu",
+                    desc2: "Pogodi latinicu",
+                    desc3: "Pogodi reči ćirilica",
+                    desc4: "Pogodi reči latinica",
+                    desc5: "Kucaj reči latinica",
+                    footer: "Napravio <a href='#' id='svit'>Svit S.P.</a> | <a href='#' id='coffee'>Kupi mi kafu ☕</a>",
+                    bottomDescription: "Pogodite pojedinačna slova, prepoznajte reči i pravilno ih kucajte kako biste savladali ćirilično pismo."
+                }
+            };
+
+            document.getElementById("title").innerText = translations[lang].title;
+            document.getElementById("description").innerText = translations[lang].description;
+            document.getElementById("stage1").innerText = translations[lang].stage1;
+            document.getElementById("stage2").innerText = translations[lang].stage2;
+            document.getElementById("stage3").innerText = translations[lang].stage3;
+            document.getElementById("stage4").innerText = translations[lang].stage4;
+            document.getElementById("stage5").innerText = translations[lang].stage5;
+            document.getElementById("desc1").innerText = translations[lang].desc1;
+            document.getElementById("desc2").innerText = translations[lang].desc2;
+            document.getElementById("desc3").innerText = translations[lang].desc3;
+            document.getElementById("desc4").innerText = translations[lang].desc4;
+            document.getElementById("desc5").innerText = translations[lang].desc5;
+            document.getElementById("footer").innerHTML = translations[lang].footer;
+            document.getElementById("bottom-description").innerText = translations[lang].bottomDescription;
+
+            document.querySelectorAll('.language-bar button').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.language-bar button[onclick="setLanguage('${lang}')"]`).classList.add('active');
+        }
+
+        window.onload = () => setLanguage('en');
+    </script>
+</head>
+<body>
+    <div class="language-bar">
+        <button onclick="setLanguage('en')">🇺🇸</button>
+        <button onclick="setLanguage('sr')">🇷🇸</button>
+    </div>
+
+    <h1 id="title">Cyrillic Learning Page</h1>
+    <p id="description">Learning Cyrillic has never been easier. Start now and progress through the stages effortlessly!</p>
+
+    <div class="options">
+        <div class="option-container"><a href="stage1.html" id="stage1">Stage 1</a><p id="desc1">Guess Cyrillic</p></div>
+        <div class="option-container"><a href="stage2.html" id="stage2">Stage 2</a><p id="desc2">Guess Latinica</p></div>
+        <div class="option-container"><a href="stage3.html" id="stage3">Stage 3</a><p id="desc3">Guess Words Cyrillic</p></div>
+        <div class="option-container"><a href="stage4.html" id="stage4">Stage 4</a><p id="desc4">Guess Words Latinica</p></div>
+        <div class="option-container"><a href="stage5.html" id="stage5">Stage 5</a><p id="desc5">Type Words in Latinica</p></div>
+    </div>
+
+    <div class="description" id="bottom-description">
+        Guess individual letters, recognize words, and type them correctly to master the Cyrillic script.
+    </div>
+
+    <footer id="footer">
+        Made by <a href="#" id="svit">Svit S.P.</a> | <a href="#" id="coffee">Buy me a coffee ☕</a>
+    </footer>
+</body>
+</html>
